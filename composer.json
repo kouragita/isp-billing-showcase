@@ -1,0 +1,11 @@
+{
+    "name": "wilsonwifi/billing-system",
+    "description": "WiFi Hotspot Billing System with M-Pesa Integration",
+    "type": "project",
+    "require": {
+        "php": ">=8.1"
+    },
+    "scripts": {
+        "start": "php -S 0.0.0.0:$PORT -t ."
+    }
+}

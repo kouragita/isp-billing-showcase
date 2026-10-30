@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TECH CONNECT WiFi - Enhanced Customer Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        /* Large device optimization */
+        @media (min-width: 1200px) {
+            body {
+                background: #f8f9fa;
+                padding: 40px;
+                align-items: flex-start;
+                justify-content: center;
+            }
+            
+            body::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 200px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                z-index: -1;
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Column layout for mobile-first approach */
+        .left-column, .right-column {
+            width: 100%;
+        }
+        
+        /* Large device container optimization */
+        @media (min-width: 1200px) {
+            .container {
+                background: white;
+                max-width: 1000px;
+                margin-top: 50px;
+                padding: 50px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                backdrop-filter: none;
+                border: none;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 50px;
+                align-items: start;
+            }
+            
+            .left-column {
+                grid-column: 1;
+            }
+            
+            .right-column {
+                grid-column: 2;
+            }
+            
+            .packages-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 48px;
+            margin-bottom: 15px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* Form styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .packages-title {
+            text-align: center;
+            color: #28a745;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .packages-loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .packages-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .package-item {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .package-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .package-item:hover::before {
+            left: 100%;
+        }
+
+        .package-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .package-item.selected {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 123, 255, 0.4);
+        }
+
+        .package-item.premium {
+            background: linear-gradient(135deg, #6f42c1, #5a2d91);
+        }
+
+        .package-item.basic {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+        }
+
+        .package-duration {
+            font-size: 12px;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        .package-name {
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .package-price {
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .package-features {
+            font-size: 10px;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .featured-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 193, 7, 0.9);
+            color: #333;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .payment-status {
+            text-align: center;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .payment-status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .payment-status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .payment-status.loading {
+            background: #cce5ff;
+            color: #004085;
+            border: 1px solid #b3d7ff;
+        }
+
+        .session-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #b3d7ff;
+        }
+
+        .session-timer {
+            font-size: 18px;
+            font-weight: 700;
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ffeaa7;
+        }
+
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .instructions ol {
+            color: #856404;
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .voucher-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .voucher-title {
+            text-align: center;
+            color: #6f42c1;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .no-packages {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .no-packages h3 {
+            margin-bottom: 10px;
+            color: #999;
+        }
+
+        /* Responsive Design */
+        @media (min-width: 1441px) {
+            .packages-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 25px;
+            }
+            
+            .package-item {
+                height: 140px;
+                font-size: 16px;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .packages-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 18px;
+            }
+            
+            .package-item {
+                height: 120px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .packages-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .package-item {
+                height: 110px;
+                padding: 12px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+                margin: 5px;
+            }
+            
+            .packages-grid {
+                gap: 10px;
+            }
+            
+            .package-item {
+                height: 100px;
+                padding: 10px;
+                font-size: 12px;
+            }
+            
+            .form-input {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-column">
+            <div class="header">
+                <div class="logo">📡</div>
+                <h1>TECH CONNECT WiFi</h1>
+                <p>Fast & Reliable Internet Access</p>
+            </div>
+
+            <div class="instructions">
+                <h3>📱 How To Purchase Internet:</h3>
+                <ol>
+                    <li>Select your preferred package below</li>
+                    <li>Enter your M-Pesa phone number (0712345678)</li>
+                    <li>Click "PAY NOW" button</li>
+                    <li>Enter your M-Pesa PIN when prompted on your phone</li>
+                    <li>Enjoy fast internet access!</li>
+                </ol>
+            </div>
+
+            <!-- Payment Status -->
+            <div id="paymentStatus" class="payment-status" style="display: none;"></div>
+
+            <!-- Session Info -->
+            <div id="sessionInfo" class="session-info" style="display: none;">
+                <div class="session-timer" id="sessionTimer">Time remaining: --:--:--</div>
+                <div id="sessionDetails"></div>
+            </div>
+
+            <!-- Phone Number Input -->
+            <div class="form-group">
+                <label class="form-label" for="phoneNumber">📱 M-Pesa Phone Number</label>
+                <input type="tel" id="phoneNumber" class="form-input" placeholder="0712345678" pattern="[0-9]{10}">
+            </div>
+
+            <!-- Payment Button -->
+            <button id="payButton" class="btn-primary" disabled onclick="initiatePayment()">
+                Select a package first
+            </button>
+
+            <!-- Voucher Section -->
+            <div class="voucher-section">
+                <div class="voucher-title">🎫 Have a Voucher Code?</div>
+                <div class="form-group">
+                    <input type="text" id="voucherCode" class="form-input" placeholder="Enter voucher code">
+                </div>
+                <button id="activateVoucher" class="btn-primary" onclick="activateVoucher()">
+                    Activate Voucher
+                </button>
+            </div>
+        </div>
+        
+        <div class="right-column">
+            <div class="packages-title">
+                💰 Choose Your Internet Package
+            </div>
+            
+            <!-- Loading State -->
+            <div id="packagesLoading" class="packages-loading">
+                <div class="loading-spinner"></div>
+                <p>Loading available packages...</p>
+            </div>
+            
+            <!-- Error State -->
+            <div id="packagesError" class="error-message" style="display: none;"></div>
+            
+            <!-- No Packages State -->
+            <div id="noPackages" class="no-packages" style="display: none;">
+                <h3>No packages available</h3>
+                <p>Please check back later or contact support.</p>
+            </div>
+            
+            <!-- Packages Grid -->
+            <div id="packagesContainer" class="packages-grid" style="display: none;">
+                <!-- Packages will be loaded here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let availablePackages = [];
+        let selectedPackage = null;
+        let selectedPrice = 0;
+        let paymentInProgress = false;
+        let sessionCheckInterval = null;
+        
+        // API Configuration
+        const API_BASE_URL = '../backend/api.php';
+
+        // Package Management
+        async function loadPackages() {
+            try {
+                showPackagesLoading();
+                
+                const response = await fetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'get_packages',
+                        active_only: true
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    availablePackages = Array.isArray(result.data) ? result.data : [];
+                    displayPackages(availablePackages);
+                    console.log(`Loaded ${availablePackages.length} packages from API`);
+                } else {
+                    showPackagesError('Failed to load packages: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error loading packages:', error);
+                showPackagesError('Unable to connect to server. Please check your connection.');
+            }
+        }
+
+        function showPackagesLoading() {
+            document.getElementById('packagesLoading').style.display = 'block';
+            document.getElementById('packagesError').style.display = 'none';
+            document.getElementById('noPackages').style.display = 'none';
+            document.getElementById('packagesContainer').style.display = 'none';
+        }
+
+        function showPackagesError(message) {
+            document.getElementById('packagesLoading').style.display = 'none';
+            document.getElementById('packagesError').style.display = 'block';
+            document.getElementById('packagesError').textContent = message;
+            document.getElementById('noPackages').style.display = 'none';
+            document.getElementById('packagesContainer').style.display = 'none';
+        }
+
+        function displayPackages(packages) {
+            const container = document.getElementById('packagesContainer');
+            
+            document.getElementById('packagesLoading').style.display = 'none';
+            document.getElementById('packagesError').style.display = 'none';
+            
+            if (!packages || packages.length === 0) {
+                document.getElementById('noPackages').style.display = 'block';
+                document.getElementById('packagesContainer').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('noPackages').style.display = 'none';
+            document.getElementById('packagesContainer').style.display = 'grid';
+
+            // Sort packages by duration for better display
+            const sortedPackages = packages.sort((a, b) => a.duration_hours - b.duration_hours);
+
+            container.innerHTML = sortedPackages.map(pkg => {
+                const packageClass = `package-item ${pkg.package_type}`;
+                const featuredBadge = pkg.is_featured ? '<div class="featured-badge">⭐ Popular</div>' : '';
+                
+                return `
+                    <button class="${packageClass}" 
+                            data-duration="${pkg.duration_hours}" 
+                            data-price="${pkg.price}"
+                            data-package-id="${pkg.id}"
+                            onclick="selectPackage(${pkg.duration_hours}, ${pkg.price}, '${pkg.name}', ${pkg.id})">
+                        ${featuredBadge}
+                        <div class="package-duration">${formatDuration(pkg.duration_hours)}</div>
+                        <div class="package-name">${pkg.name}</div>
+                        <div class="package-price">KES ${pkg.price}/-</div>
+                        ${pkg.speed_limit_mbps ? 
+                            `<div class="package-features">${pkg.speed_limit_mbps} Mbps • ${pkg.max_devices} device(s)</div>` :
+                            `<div class="package-features">Unlimited • ${pkg.max_devices} device(s)</div>`
+                        }
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function formatDuration(hours) {
+            if (hours < 1) {
+                return `${Math.round(hours * 60)} MINUTES`;
+            } else if (hours < 24) {
+                return hours === 1 ? '1 HOUR' : `${hours} HOURS`;
+            } else if (hours < 168) {
+                const days = Math.round(hours / 24);
+                return days === 1 ? '1 DAY' : `${days} DAYS`;
+            } else {
+                const weeks = Math.round(hours / 168);
+                return weeks === 1 ? '1 WEEK' : `${weeks} WEEKS`;
+            }
+        }
+
+        function selectPackage(duration, price, name, packageId) {
+            if (paymentInProgress) return;
+            
+            // Remove previous selection
+            document.querySelectorAll('.package-item').forEach(pkg => {
+                pkg.classList.remove('selected');
+            });
+            
+            // Select current package
+            event.currentTarget.classList.add('selected');
+            selectedPackage = duration;
+            selectedPrice = price;
+            
+            updatePayButton();
+            console.log(`Selected package: ${name} (${duration}h - KES ${price})`);
+        }
+
+        function updatePayButton() {
+            const payButton = document.getElementById('payButton');
+            const phoneInput = document.getElementById('phoneNumber');
+            
+            if (selectedPackage && selectedPrice > 0) {
+                payButton.disabled = false;
+                payButton.textContent = `PAY KES ${selectedPrice}/- (${formatDuration(selectedPackage)})`;
+            } else {
+                payButton.disabled = true;
+                payButton.textContent = 'Select a package first';
+            }
+        }
+
+        // Payment Processing
+        async function initiatePayment() {
+            const phone = document.getElementById('phoneNumber').value.trim();
+            
+            if (!validatePhoneNumber(phone)) {
+                showError('Please enter a valid phone number (e.g., 0712345678)');
+                return;
+            }
+            
+            if (!selectedPackage || selectedPrice <= 0) {
+                showError('Please select a package first');
+                return;
+            }
+
+            await processPayment(phone, selectedPrice, selectedPackage);
+        }
+
+        function validatePhoneNumber(phone) {
+            // Remove any spaces or special characters
+            phone = phone.replace(/\s+/g, '');
+            
+            // Check if it's a valid Kenyan number format
+            return /^(0|\+254|254)?[17]\d{8}$/.test(phone);
+        }
+
+        async function processPayment(phone, amount, duration) {
+            paymentInProgress = true;
+            updatePayButton();
+            
+            showLoading();
+            
+            try {
+                console.log('Initiating payment:', { phone, amount, duration });
+                
+                const response = await fetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'initiate_payment',
+                        phone: phone,
+                        amount: amount,
+                        duration: duration
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Payment request sent! Please check your phone for the M-Pesa prompt.');
+                    
+                    // Start checking for payment completion
+                    checkPaymentStatus(result.data.checkout_request_id);
+                } else {
+                    showError('Payment failed: ' + result.message);
+                    paymentInProgress = false;
+                    updatePayButton();
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                showError('Payment failed. Please check your connection and try again.');
+                paymentInProgress = false;
+                updatePayButton();
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function checkPaymentStatus(checkoutRequestId, attempts = 0) {
+            const maxAttempts = 30; // Check for 5 minutes (30 attempts * 10 seconds)
+            
+            if (attempts >= maxAttempts) {
+                showError('Payment verification timed out. Please contact support if money was deducted.');
+                paymentInProgress = false;
+                updatePayButton();
+                return;
+            }
+            
+            try {
+                const response = await fetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'check_payment_status',
+                        checkout_request_id: checkoutRequestId
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success && (result.data.status === 'completed' || result.data.status === 'active')) {
+                    showSuccess('Payment successful! Your internet session is now active.');
+                    
+                    // Log successful activation
+                    console.log('🎉 Payment confirmed and session activated:', result.data);
+                    
+                    // Store session data and start session display
+                    const sessionData = result.data.session;
+                    localStorage.setItem('currentSession', JSON.stringify({
+                        phone: sessionData.phone_number,
+                        sessionEnd: sessionData.session_end,
+                        amount: sessionData.amount,
+                        duration: sessionData.duration_hours,
+                        receipt: sessionData.mpesa_receipt || 'N/A'
+                    }));
+                    
+                    displaySession();
+                    startSessionTimer();
+                    
+                    paymentInProgress = false;
+                    updatePayButton();
+                } else if (result.data && (result.data.status === 'failed' || result.data.status === 'expired')) {
+                    if (result.data.auto_activated) {
+                        // Session was auto-activated even if it later expired
+                        showSuccess('Payment successful! Your test session was activated.');
+                        console.log('🧪 Test session auto-activated:', result.data);
+                    } else {
+                        showError(`Payment ${result.data.status}. Please try again or contact support.`);
+                    }
+                    paymentInProgress = false;
+                    updatePayButton();
+                } else if (result.data && result.data.status === 'pending') {
+                    // Payment still pending, show progress
+                    const remainingTime = Math.max(0, result.data.timeout_in || 300);
+                    console.log(`💰 Payment processing... ${Math.ceil(remainingTime / 60)}m ${remainingTime % 60}s remaining`);
+                    setTimeout(() => checkPaymentStatus(checkoutRequestId, attempts + 1), 5000); // Check every 5 seconds
+                } else {
+                    // Unknown status, continue checking
+                    console.log('🔄 Payment status unknown, continuing to check:', result.data);
+                    setTimeout(() => checkPaymentStatus(checkoutRequestId, attempts + 1), 10000);
+                }
+            } catch (error) {
+                console.error('Payment status check error:', error);
+                // Continue checking despite errors
+                if (attempts < maxAttempts) {
+                    setTimeout(() => checkPaymentStatus(checkoutRequestId, attempts + 1), 10000);
+                } else {
+                    showError('Unable to verify payment status. Please contact support.');
+                    paymentInProgress = false;
+                    updatePayButton();
+                }
+            }
+        }
+
+        // Voucher Processing
+        async function activateVoucher() {
+            const voucherCode = document.getElementById('voucherCode').value.trim();
+            
+            if (!voucherCode) {
+                showError('Please enter a voucher code');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const response = await fetch(API_BASE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'use_voucher',
+                        voucher_code: voucherCode,
+                        phone: document.getElementById('phoneNumber').value.trim()
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess('Voucher activated successfully! Redirecting to your internet experience...');
+                    
+                    // Store session data
+                    const sessionData = result.data;
+                    localStorage.setItem('currentSession', JSON.stringify({
+                        phone: sessionData.phone_number,
+                        sessionEnd: sessionData.session_end,
+                        amount: sessionData.amount,
+                        duration: sessionData.duration_hours,
+                        receipt: 'Voucher: ' + voucherCode
+                    }));
+                    
+                    displaySession();
+                    startSessionTimer();
+                    
+                    // Clear voucher input
+                    document.getElementById('voucherCode').value = '';
+                    
+                    // Redirect to website after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = 'https://wilsonmwangi.vercel.app';
+                    }, 3000);
+                } else {
+                    showError('Voucher activation failed: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Voucher activation error:', error);
+                showError('Failed to activate voucher. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Session Management
+        function displaySession() {
+            const sessionData = JSON.parse(localStorage.getItem('currentSession'));
+            if (!sessionData) return;
+            
+            const sessionInfo = document.getElementById('sessionInfo');
+            const sessionDetails = document.getElementById('sessionDetails');
+            
+            const startTime = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const endTime = new Date(sessionData.sessionEnd).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            sessionDetails.innerHTML = `
+                <div><strong>Package:</strong> ${sessionData.duration}h - KES ${sessionData.amount}</div>
+                <div><strong>Start:</strong> ${startTime}</div>
+                <div><strong>End:</strong> ${endTime}</div>
+                <div><strong>Receipt:</strong> ${sessionData.receipt}</div>
+            `;
+            
+            sessionInfo.style.display = 'block';
+        }
+
+        function startSessionTimer() {
+            const sessionData = JSON.parse(localStorage.getItem('currentSession'));
+            if (!sessionData) return;
+            
+            const timerElement = document.getElementById('sessionTimer');
+            
+            function updateTimer() {
+                const now = new Date().getTime();
+                const sessionEnd = new Date(sessionData.sessionEnd).getTime();
+                const remaining = sessionEnd - now;
+                
+                if (remaining <= 0) {
+                    timerElement.textContent = 'Session Expired';
+                    timerElement.style.color = '#dc3545';
+                    showError('Your internet session has expired. Please purchase a new package to continue.');
+                    localStorage.removeItem('currentSession');
+                    document.getElementById('sessionInfo').style.display = 'none';
+                    if (sessionCheckInterval) {
+                        clearInterval(sessionCheckInterval);
+                    }
+                    return;
+                }
+                
+                const hours = Math.floor(remaining / (1000 * 60 * 60));
+                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+                
+                timerElement.textContent = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} remaining`;
+                
+                // Change color as time runs out
+                if (remaining < 300000) { // Less than 5 minutes
+                    timerElement.style.color = '#dc3545';
+                } else if (remaining < 1800000) { // Less than 30 minutes
+                    timerElement.style.color = '#fd7e14';
+                } else {
+                    timerElement.style.color = '#007bff';
+                }
+            }
+            
+            sessionCheckInterval = setInterval(updateTimer, 1000);
+            updateTimer(); // Initial call
+        }
+
+        // UI Helper Functions
+        function showLoading() {
+            const status = document.getElementById('paymentStatus');
+            status.className = 'payment-status loading';
+            status.textContent = 'Processing... Please wait';
+            status.style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('paymentStatus').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const status = document.getElementById('paymentStatus');
+            status.className = 'payment-status success';
+            status.textContent = message;
+            status.style.display = 'block';
+        }
+
+        function showError(message) {
+            const status = document.getElementById('paymentStatus');
+            status.className = 'payment-status error';
+            status.textContent = message;
+            status.style.display = 'block';
+        }
+
+        // Real-time Package Updates
+        function setupRealTimeUpdates() {
+            // Listen for admin package updates
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'admin_package_update') {
+                    console.log('Package update detected from admin panel');
+                    setTimeout(loadPackages, 1000); // Small delay to ensure backend is updated
+                }
+            });
+
+            // Listen for custom events (from admin panel in same browser)
+            window.addEventListener('adminPackageUpdate', function(e) {
+                console.log('Direct package update event received');
+                setTimeout(loadPackages, 500);
+            });
+
+            // Periodic refresh to ensure sync
+            setInterval(loadPackages, 60000); // Refresh every minute
+        }
+
+        // Page Initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load packages from API
+            loadPackages();
+            
+            // Setup real-time updates
+            setupRealTimeUpdates();
+            
+            // Check for existing session
+            const existingSession = localStorage.getItem('currentSession');
+            if (existingSession) {
+                const sessionData = JSON.parse(existingSession);
+                const now = new Date().getTime();
+                const sessionEnd = new Date(sessionData.sessionEnd).getTime();
+                
+                if (sessionEnd > now) {
+                    displaySession();
+                    startSessionTimer();
+                } else {
+                    localStorage.removeItem('currentSession');
+                }
+            }
+            
+            // Phone number validation
+            document.getElementById('phoneNumber').addEventListener('input', function() {
+                updatePayButton();
+            });
+            
+            // Enter key handlers
+            document.getElementById('phoneNumber').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !document.getElementById('payButton').disabled) {
+                    initiatePayment();
+                }
+            });
+            
+            document.getElementById('voucherCode').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    activateVoucher();
+                }
+            });
+            
+            console.log('Enhanced Customer Portal initialized');
+        });
+    </script>
+</body>
+</html>

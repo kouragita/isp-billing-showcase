@@ -1,0 +1,42 @@
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Log files
+*.log
+mpesa_callback.log
+debug.log
+
+# Dependencies
+vendor/
+node_modules/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup files
+*.backup
+api.php.backup
+
+# Sensitive files
+config.php
+secrets.json
+private.key
+
+# OS files
+.DS_Store
+Thumbs.db.env
+.env.local
+node_modules/
+vendor/
+*.log
